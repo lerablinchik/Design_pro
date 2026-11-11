@@ -3,7 +3,7 @@ from django.contrib.auth import login, logout, authenticate
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import PermissionDenied
-from .models import Application
+from .models import Application, Category
 from .forms import UserRegistrationForm, ApplicationCreateForm
 
 
@@ -102,3 +102,44 @@ def application_delete_view(request, pk):
         return redirect('profile')
 
     return render(request, 'catalog/application_confirm_delete.html', {'application': application})
+
+
+@login_required
+def admin_panel_view(request):
+    if not request.user.is_staff:
+        raise PermissionDenied
+
+    all_apps = Application.objects.all().order_by('-created_at')
+    all_categories = Category.objects.all().order_by('name')
+
+    status_filter = request.GET.get('status')
+    if status_filter in ['n', 'w', 'd']:
+        all_apps = all_apps.filter(status=status_filter)
+
+    if request.method == 'POST':
+        action_type = request.POST.get('action_type')
+
+        if action_type == 'change_status':
+            app_id = request.POST.get('app_id')
+            new_status = request.POST.get('new_status')
+            app = get_object_or_404(Application, pk=app_id)
+            app.status = new_status
+            app.save()
+
+        elif action_type == 'create_category':
+            cat_name = request.POST.get('cat_name', '').strip()
+            if cat_name and not Category.objects.filter(name=cat_name).exists():
+                Category.objects.create(name=cat_name)
+
+        elif action_type == 'delete_category':
+            cat_id = request.POST.get('cat_id')
+            cat = get_object_or_404(Category, pk=cat_id)
+            cat.delete()
+
+        return redirect('admin-panel')
+
+    return render(request, 'catalog/admin_panel.html', {
+        'all_apps': all_apps,
+        'all_categories': all_categories,
+        'status_filter': status_filter
+    })

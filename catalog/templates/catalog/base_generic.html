@@ -51,6 +51,12 @@
           <li style="padding: 5px 15px; font-size: 14px; color: #6c757d;">Пользователь: <strong style="color: #212529;">{{ user.username }}</strong></li>
           <li><a href="{% url 'profile' %}">Мои заявки</a></li>
           <li><a href="{% url 'application-create' %}">Создать заявку</a></li>
+
+          {% if user.is_staff or user.is_superuser %}
+            <li class="sidebar-title text-danger">Администратор</li>
+            <li><a href="{% url 'admin-panel' %}" style="color: #dc3545; font-weight: bold;">Панель управления</a></li>
+          {% endif %}
+
           <li style="margin-top: 25px;">
             <form method="post" action="{% url 'logout' %}">
               {% csrf_token %}

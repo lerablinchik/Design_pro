@@ -9,4 +9,5 @@ urlpatterns = [
     path('profile/', views.profile_view, name='profile'),
     path('application/create/', views.application_create_view, name='application-create'),
     path('application/<uuid:pk>/delete/', views.application_delete_view, name='application-delete'),
+    path('admin-panel/', views.admin_panel_view, name='admin-panel'),
 ]
