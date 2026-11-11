@@ -1,6 +1,7 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth import login, logout, authenticate
 from django.contrib.auth.forms import AuthenticationForm
+from django.contrib.auth.decorators import login_required
 from .models import Application
 from .forms import UserRegistrationForm
 
@@ -17,14 +18,14 @@ def index(request):
 
 def register_view(request):
     if request.user.is_authenticated:
-        return redirect('index')
+        return redirect('profile')
 
     if request.method == 'POST':
         form = UserRegistrationForm(request.POST)
         if form.is_valid():
             user = form.save()
             login(request, user, backend='django.contrib.auth.backends.ModelBackend')
-            return redirect('index')
+            return redirect('profile')
     else:
         form = UserRegistrationForm()
     return render(request, 'catalog/register.html', {'form': form})
@@ -32,7 +33,7 @@ def register_view(request):
 
 def login_view(request):
     if request.user.is_authenticated:
-        return redirect('index')
+        return redirect('profile')
 
     error_message = None
     if request.method == 'POST':
@@ -43,7 +44,7 @@ def login_view(request):
             user = authenticate(username=username, password=password)
             if user is not None:
                 login(request, user)
-                return redirect('index')
+                return redirect('profile')
         else:
             error_message = "Неправильный логин или пароль."
     else:
@@ -54,3 +55,17 @@ def login_view(request):
 def logout_view(request):
     logout(request)
     return redirect('index')
+
+
+@login_required
+def profile_view(request):
+    user_apps = Application.objects.filter(user=request.user).order_by('-created_at')
+
+    status_filter = request.GET.get('status')
+    if status_filter in ['n', 'w', 'd']:
+        user_apps = user_apps.filter(status=status_filter)
+
+    return render(request, 'catalog/profile.html', {
+        'user_apps': user_apps,
+        'status_filter': status_filter
+    })

@@ -5,8 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>{% block title %}Design.pro — Студия интерьеров{% endblock %}</title>
     <style>
-      body { background-color: #f5f6f8; font-family: system-ui, -apple-system, sans-serif; margin: 0; padding: 0; color: #333; }
-      .sidebar { position: fixed; top: 0; left: 0; bottom: 0; width: 260px; background: #ffffff; border-right: 1px solid #e3e6ec; padding: 25px 20px; }
+      body { background-color: #f5f6f8; font-family: system-ui, -apple-system, sans-serif; margin: 0; padding: 0; overflow-x: hidden; color: #333; }
+      .sidebar { position: fixed; top: 0; left: 0; bottom: 0; width: 260px; background: #ffffff; border-right: 1px solid #e3e6ec; padding: 25px 20px; z-index: 100; }
       .sidebar h3 { font-weight: 800; color: #212529; margin-top: 0; margin-bottom: 25px; font-size: 24px; padding: 0 10px; }
       .sidebar-nav { list-style: none; padding-left: 0; margin-bottom: 0; }
       .sidebar-nav li { margin-bottom: 8px; }
@@ -15,7 +15,29 @@
       .sidebar-title { font-size: 11px; font-weight: 700; text-transform: uppercase; color: #adb5bd; letter-spacing: 0.8px; margin: 25px 0 10px 15px; list-style: none; }
       .btn-logout { background: none; border: none; text-align: left; width: 100%; color: #dc3545; padding: 12px 15px; border-radius: 6px; font-weight: 600; cursor: pointer; transition: all 0.2s; font-size: 16px; }
       .btn-logout:hover { background-color: #fff5f5; }
-      .main-content { margin-left: 260px; padding: 40px; }
+      .main-content { margin-left: 260px; padding: 40px; width: calc(100% - 260px); min-height: 100vh; box-sizing: border-box; }
+
+      .btn-primary { display: inline-block; background-color: #0d6efd; color: #fff; text-decoration: none; padding: 10px 20px; border-radius: 6px; font-weight: 600; border: none; cursor: pointer; }
+      .btn-primary:hover { background-color: #0b5ed7; }
+      .btn-group { display: inline-flex; border-radius: 6px; overflow: hidden; border: 1px solid #ced4da; background: #fff; }
+      .btn-filter { text-decoration: none; color: #495057; padding: 10px 20px; border-right: 1px solid #ced4da; font-weight: 500; font-size: 14px; }
+      .btn-filter:last-child { border-right: none; }
+      .btn-filter:hover { background-color: #f8f9fa; }
+      .btn-filter.active { background-color: #212529; color: #fff; border-color: #212529; }
+      .d-flex { display: flex; }
+      .justify-content-between { justify-content: space-between; }
+      .align-items-center { align-items: center; }
+      .mb-4 { margin-bottom: 1.5rem; }
+      .pb-2 { padding-bottom: 0.5rem; }
+      .border-bottom { border-bottom: 1px solid #e3e6ec; }
+      .custom-table { width: 100%; border-collapse: collapse; background: #fff; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 4px rgba(0,0,0,0.04); }
+      .custom-table th { background-color: #f8f9fa; color: #6c757d; font-size: 12px; text-transform: uppercase; font-weight: 700; padding: 15px; text-align: left; border-bottom: 2px solid #e3e6ec; }
+      .custom-table td { padding: 15px; border-bottom: 1px solid #e3e6ec; font-size: 14px; }
+      .custom-table tr:last-child td { border-bottom: none; }
+      .badge { display: inline-block; padding: 6px 12px; font-size: 12px; font-weight: 700; border-radius: 4px; text-transform: uppercase; }
+      .badge-new { background-color: #e0f2fe; color: #0369a1; border: 1px solid #bae6fd; }
+      .badge-work { background-color: #fef3c7; color: #b45309; border: 1px solid #fde68a; }
+      .badge-done { background-color: #dcfce7; color: #15803d; border: 1px solid #bbf7d0; }
     </style>
   </head>
   <body>
@@ -27,6 +49,7 @@
         {% if user.is_authenticated %}
           <li class="sidebar-title">Личный кабинет</li>
           <li style="padding: 5px 15px; font-size: 14px; color: #6c757d;">Пользователь: <strong style="color: #212529;">{{ user.username }}</strong></li>
+          <li><a href="{% url 'profile' %}">Мои заявки</a></li>
           <li style="margin-top: 25px;">
             <form method="post" action="{% url 'logout' %}">
               {% csrf_token %}
