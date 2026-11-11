@@ -1,11 +1,18 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth import login, logout, authenticate
 from django.contrib.auth.forms import AuthenticationForm
+from .models import Application
 from .forms import UserRegistrationForm
 
 
 def index(request):
-    return render(request, 'catalog/base_generic.html')
+    completed_apps = Application.objects.filter(status='d').order_by('-created_at')[:4]
+    processing_count = Application.objects.filter(status='w').count()
+
+    return render(request, 'catalog/index.html', {
+        'completed_apps': completed_apps,
+        'processing_count': processing_count
+    })
 
 
 def register_view(request):

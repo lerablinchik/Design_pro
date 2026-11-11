@@ -1,0 +1,47 @@
+{% extends "catalog/base_generic.html" %}
+
+{% block content %}
+<div class="p-5 mb-4 bg-white rounded-3 border-0 shadow-sm">
+    <div class="container-fluid py-2">
+        <h1 class="display-5 fw-bold" style="color: #212529;">Студия интерьеров «Design.pro»</h1>
+        <p class="col-md-8 fs-5 text-muted">Мы проектируем жилые помещения, создаем уют и предлагаем лучшие варианты визуального оформления.</p>
+    </div>
+</div>
+
+<div class="card border-0 shadow-sm mb-5 bg-primary text-white">
+    <div class="card-body d-flex align-items-center p-4">
+        <div>
+            <h5 class="card-title mb-1 fw-bold">Проекты в работе</h5>
+            <p class="card-text fs-5 mb-0">Текущее количество заявок в статусе «Принято в работу»: <strong class="badge bg-white text-primary fs-5">{{ processing_count }}</strong></p>
+        </div>
+    </div>
+</div>
+
+<h3 class="fw-bold mb-4" style="color: #212529;">Последние выполненные работы</h3>
+
+{% if completed_apps %}
+    <div class="row g-4">
+        {% for app in completed_apps %}
+            <div class="col-sm-6 col-md-3">
+                <div class="card h-100 border-0 shadow-sm bg-white overflow-hidden">
+                    {% if app.design_photo %}
+                        <img src="{{ app.design_photo.url }}" alt="{{ app.title }}" class="card-img-top" style="height: 200px; object-fit: cover;">
+                    {% else %}
+                        <div class="bg-light text-muted d-flex align-items-center justify-content-center" style="height: 200px;">Нет фото дизайна</div>
+                    {% endif %}
+                    <div class="card-body p-4 d-flex flex-column justify-content-between">
+                        <div>
+                            <h5 class="card-title fw-bold mb-2" style="color: #212529;">{{ app.title }}</h5>
+                            <span class="badge bg-secondary-subtle text-secondary mb-3">{{ app.category.name }}</span>
+                        </div>
+                        <p class="card-text text-muted small mb-0">Дата добавления: {{ app.created_at|date:"d.m.Y H:i" }}</p>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+{% else %}
+    <div class="alert alert-light border-0 shadow-sm p-4 text-muted">На данный момент в портфолио нет выполненных заявок.</div>
+{% endif %}
+
+{% endblock %}
