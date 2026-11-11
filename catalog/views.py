@@ -1,7 +1,8 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import login, logout, authenticate
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth.decorators import login_required
+from django.core.exceptions import PermissionDenied
 from .models import Application
 from .forms import UserRegistrationForm, ApplicationCreateForm
 
@@ -84,3 +85,20 @@ def application_create_view(request):
     else:
         form = ApplicationCreateForm()
     return render(request, 'catalog/application_form.html', {'form': form})
+
+
+@login_required
+def application_delete_view(request, pk):
+    application = get_object_or_404(Application, pk=pk)
+
+    if application.user != request.user:
+        raise PermissionDenied
+
+    if application.status != 'n':
+        return redirect('profile')
+
+    if request.method == 'POST':
+        application.delete()
+        return redirect('profile')
+
+    return render(request, 'catalog/application_confirm_delete.html', {'application': application})

@@ -21,9 +21,10 @@
             <tr>
                 <th style="width: 15%;">Дата</th>
                 <th style="width: 25%;">Название</th>
-                <th style="width: 35%;">Описание</th>
+                <th style="width: 30%;">Описание</th>
                 <th style="width: 13%;">Категория</th>
                 <th style="width: 12%;">Статус</th>
+                <th style="width: 5%;">Действие</th>
             </tr>
         </thead>
         <tbody>
@@ -40,6 +41,13 @@
                             <span class="badge badge-work">В работе</span>
                         {% elif app.status == 'd' %}
                             <span class="badge badge-done">Выполнено</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if app.status == 'n' %}
+                            <a href="{% url 'application-delete' app.pk %}" style="display: inline-block; background-color: #dc3545; color: #fff; text-decoration: none; padding: 6px 12px; border-radius: 4px; font-weight: 600; font-size: 13px; border: none; cursor: pointer;">Удалить</a>
+                        {% else %}
+                            <span style="color: #adb5bd; font-size: 12px; font-weight: 500; white-space: nowrap;">Недоступно</span>
                         {% endif %}
                     </td>
                 </tr>
