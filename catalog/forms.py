@@ -2,6 +2,7 @@ import re
 from django import forms
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
+from .models import Application
 
 
 class UserRegistrationForm(forms.ModelForm):
@@ -63,3 +64,21 @@ class UserRegistrationForm(forms.ModelForm):
         if commit:
             user.save()
         return user
+
+
+class ApplicationCreateForm(forms.ModelForm):
+    class Meta:
+        model = Application
+        fields = ['title', 'description', 'category', 'photo']
+
+    def clean_photo(self):
+        photo = self.cleaned_data.get('photo')
+        if photo:
+            if photo.size > 2 * 1024 * 1024:
+                raise ValidationError("Максимальный размер файла не должен превышать 2Мб.")
+
+            ext = photo.name.split('.')[-1].lower()
+            valid_extensions = ['jpg', 'jpeg', 'png', 'bmp']
+            if ext not in valid_extensions:
+                raise ValidationError("Разрешены только форматы: jpg, jpeg, png, bmp.")
+        return photo
