@@ -50,6 +50,7 @@
           <li class="sidebar-title">Личный кабинет</li>
           <li style="padding: 5px 15px; font-size: 14px; color: #6c757d;">Пользователь: <strong style="color: #212529;">{{ user.username }}</strong></li>
           <li><a href="{% url 'profile' %}">Мои заявки</a></li>
+          <li><a href="{% url 'application-create' %}">Создать заявку</a></li>
           <li style="margin-top: 25px;">
             <form method="post" action="{% url 'logout' %}">
               {% csrf_token %}

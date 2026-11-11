@@ -3,7 +3,7 @@ from django.contrib.auth import login, logout, authenticate
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth.decorators import login_required
 from .models import Application
-from .forms import UserRegistrationForm
+from .forms import UserRegistrationForm, ApplicationCreateForm
 
 
 def index(request):
@@ -69,3 +69,18 @@ def profile_view(request):
         'user_apps': user_apps,
         'status_filter': status_filter
     })
+
+
+@login_required
+def application_create_view(request):
+    if request.method == 'POST':
+        form = ApplicationCreateForm(request.POST, request.FILES)
+        if form.is_valid():
+            application = form.save(commit=False)
+            application.user = request.user
+            application.status = 'n'
+            application.save()
+            return redirect('profile')
+    else:
+        form = ApplicationCreateForm()
+    return render(request, 'catalog/application_form.html', {'form': form})
