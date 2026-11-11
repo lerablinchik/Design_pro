@@ -9,7 +9,12 @@
       .sidebar { position: fixed; top: 0; left: 0; bottom: 0; width: 260px; background: #ffffff; border-right: 1px solid #e3e6ec; padding: 25px 20px; }
       .sidebar h3 { font-weight: 800; color: #212529; margin-top: 0; margin-bottom: 25px; font-size: 24px; padding: 0 10px; }
       .sidebar-nav { list-style: none; padding-left: 0; margin-bottom: 0; }
-      .sidebar-nav li a { text-decoration: none; color: #495057; display: block; padding: 12px 15px; border-radius: 6px; font-weight: 600; }
+      .sidebar-nav li { margin-bottom: 8px; }
+      .sidebar-nav li a { text-decoration: none; color: #495057; display: block; padding: 12px 15px; border-radius: 6px; font-weight: 600; transition: all 0.2s; }
+      .sidebar-nav li a:hover { background-color: #f1f3f5; color: #0d6efd; }
+      .sidebar-title { font-size: 11px; font-weight: 700; text-transform: uppercase; color: #adb5bd; letter-spacing: 0.8px; margin: 25px 0 10px 15px; list-style: none; }
+      .btn-logout { background: none; border: none; text-align: left; width: 100%; color: #dc3545; padding: 12px 15px; border-radius: 6px; font-weight: 600; cursor: pointer; transition: all 0.2s; font-size: 16px; }
+      .btn-logout:hover { background-color: #fff5f5; }
       .main-content { margin-left: 260px; padding: 40px; }
     </style>
   </head>
@@ -18,7 +23,21 @@
       <h3>Design.pro</h3>
       <ul class="sidebar-nav">
         <li><a href="{% url 'index' %}">Главная страница</a></li>
-        <li><a href="{% url 'register' %}">Регистрация</a></li>
+
+        {% if user.is_authenticated %}
+          <li class="sidebar-title">Личный кабинет</li>
+          <li style="padding: 5px 15px; font-size: 14px; color: #6c757d;">Пользователь: <strong style="color: #212529;">{{ user.username }}</strong></li>
+          <li style="margin-top: 25px;">
+            <form method="post" action="{% url 'logout' %}">
+              {% csrf_token %}
+              <button type="submit" class="btn-logout">Выход</button>
+            </form>
+          </li>
+        {% else %}
+          <li class="sidebar-title">Аккаунт</li>
+          <li><a href="{% url 'login' %}">Вход</a></li>
+          <li><a href="{% url 'register' %}">Регистрация</a></li>
+        {% endif %}
       </ul>
     </div>
     <div class="main-content">
