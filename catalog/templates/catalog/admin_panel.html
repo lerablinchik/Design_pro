@@ -6,7 +6,6 @@
     <span style="background: #dc3545; color: #fff; padding: 6px 12px; border-radius: 4px; font-weight: bold; font-size: 14px;">Режим Администратора</span>
 </div>
 
-<!-- Фильтры заявок -->
 <div class="mb-4">
     <div class="btn-group">
         <a href="{% url 'admin-panel' %}" class="btn-filter {% if not status_filter %}active{% endif %}">Все проекты</a>
@@ -21,18 +20,28 @@
     <table class="custom-table mb-5">
         <thead>
             <tr>
-                <th style="width: 12%;">Автор</th>
+                <th style="width: 10%;">Автор</th>
+                <th style="width: 11%;">План / Фото</th>
                 <th style="width: 15%;">Название</th>
-                <th style="width: 25%;">Описание</th>
-                <th style="width: 15%;">Категория</th>
-                <th style="width: 13%;">Статус</th>
-                <th style="width: 20%;">Управление статусом</th>
+                <th style="width: 22%;">Описание</th>
+                <th style="width: 12%;">Категория</th>
+                <th style="width: 11%;">Статус</th>
+                <th style="width: 19%;">Управление статусом</th>
             </tr>
         </thead>
         <tbody>
             {% for app in all_apps %}
                 <tr>
                     <td style="color: #6c757d; font-weight: 700;">{{ app.user.username }}</td>
+                    <td>
+                        {% if app.photo %}
+                            <a href="{{ app.photo.url }}" target="_blank" title="Открыть план в полном размере">
+                                <img src="{{ app.photo.url }}" alt="План" style="width: 70px; height: 50px; object-fit: cover; border-radius: 4px; border: 1px solid #dee2e6;">
+                            </a>
+                        {% else %}
+                            <span style="color: #adb5bd; font-size: 12px;">Нет фото</span>
+                        {% endif %}
+                    </td>
                     <td style="font-weight: 700; color: #212529;">{{ app.title }}</td>
                     <td style="color: #495057; font-size: 13px;">{{ app.description }}</td>
                     <td><span style="background: #f1f3f5; padding: 4px 8px; border-radius: 4px; border: 1px solid #dee2e6; font-size: 13px; font-weight: 500;">{{ app.category.name }}</span></td>
@@ -46,17 +55,23 @@
                         {% endif %}
                     </td>
                     <td>
-                        <form method="post" style="display: flex; gap: 8px; align-items: center; margin: 0;">
+                        <form method="post" enctype="multipart/form-data" style="margin: 0;">
                             {% csrf_token %}
                             <input type="hidden" name="action_type" value="change_status">
                             <input type="hidden" name="app_id" value="{{ app.pk }}">
 
-                            <select name="new_status" style="padding: 6px 10px; border: 1px solid #ced4da; border-radius: 4px; font-size: 13px; background-color: #fff;">
-                                <option value="n" {% if app.status == 'n' %}selected{% endif %}>Новая</option>
-                                <option value="w" {% if app.status == 'w' %}selected{% endif %}>В работе</option>
-                                <option value="d" {% if app.status == 'd' %}selected{% endif %}>Выполнено</option>
-                            </select>
-                            <button type="submit" class="btn-primary" style="padding: 6px 12px; font-size: 13px; border-radius: 4px; background-color: #212529;">ОК</button>
+                            <div style="display: flex; gap: 8px; align-items: center;">
+                                <select name="new_status" onchange="this.closest('form').querySelector('.design-upload').style.display = this.value === 'd' ? 'block' : 'none'" style="padding: 6px 10px; border: 1px solid #ced4da; border-radius: 4px; font-size: 13px; background-color: #fff;">
+                                    <option value="n" {% if app.status == 'n' %}selected{% endif %}>Новая</option>
+                                    <option value="w" {% if app.status == 'w' %}selected{% endif %}>В работе</option>
+                                    <option value="d" {% if app.status == 'd' %}selected{% endif %}>Выполнено</option>
+                                </select>
+                                <button type="submit" class="btn-primary" style="padding: 6px 12px; font-size: 13px; border-radius: 4px; background-color: #212529;">ОК</button>
+                            </div>
+
+                            <div class="design-upload" style="display: {% if app.status == 'd' %}block{% else %}none{% endif %}; margin-top: 8px;">
+                                <input type="file" name="design_photo" accept=".jpg,.jpeg,.png,.bmp" style="font-size: 11px; max-width: 180px;">
+                            </div>
                         </form>
                     </td>
                 </tr>
@@ -69,12 +84,10 @@
     </div>
 {% endif %}
 
-<!-- БЛОК УПРАВЛЕНИЯ КАТЕГОРИЯМИ ПО ТЗ -->
 <div style="margin-top: 40px; padding-top: 20px; border-top: 2px solid #e3e6ec;">
     <h3 style="font-weight: 700; margin-bottom: 20px; color: #212529; font-size: 20px;">Управление категориями заявок</h3>
 
     <div style="display: flex; gap: 40px; align-items: flex-start;">
-        <!-- Форма добавления -->
         <div style="background: #fff; padding: 25px; border-radius: 8px; width: 40%; border: 1px solid #e3e6ec; box-shadow: 0 2px 4px rgba(0,0,0,0.02);">
             <h4 style="margin-top: 0; font-size: 16px; font-weight: 700; margin-bottom: 15px;">Создать категорию</h4>
             <form method="post">
@@ -87,7 +100,6 @@
             </form>
         </div>
 
-        <!-- Таблица списка категорий -->
         <div style="width: 60%;">
             <table class="custom-table">
                 <thead>
@@ -116,3 +128,4 @@
     </div>
 </div>
 {% endblock %}
+

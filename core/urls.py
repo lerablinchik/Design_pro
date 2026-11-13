@@ -23,9 +23,10 @@ from django.conf.urls.static import static
 urlpatterns = [
     path('superadmin/', admin.site.urls),
     path('catalog/', include('catalog.urls')),
+    #свзяывает глоб маршруты с локальными
     path('', RedirectView.as_view(url='catalog/', permanent=True)),
 ]
 
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
-
+#разрешает серверу открывать фото в отдельной стр браузера
