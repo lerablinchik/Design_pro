@@ -113,6 +113,7 @@ def admin_panel_view(request):
 
     all_apps = Application.objects.all().order_by('-created_at')
     all_categories = Category.objects.all().order_by('name')
+    error_message = None  # переменная для текста ошибки, если админ забыл фото или комментарий
 
     status_filter = request.GET.get('status')
     if status_filter in ['n', 'w', 'd']:
@@ -125,26 +126,43 @@ def admin_panel_view(request):
             app_id = request.POST.get('app_id')
             new_status = request.POST.get('new_status')
             app = get_object_or_404(Application, pk=app_id)
-            app.status = new_status
-            if new_status == 'd' and 'design_photo' in request.FILES:  # если статус «Выполнено» и прикрепили фото
-                app.design_photo = request.FILES['design_photo']
-            app.save()
+
+            if app.status != 'n':  # запрещаем менять статус, если заявка уже не «Новая»
+                error_message = "Смена статуса с «Принято в работу» или «Выполнено» невозможна."
+            elif new_status == 'w':  # если переводим в «Принято в работу»
+                comment_text = request.POST.get('comment', '').strip()
+                if not comment_text:  # проверяем, что комментарий не пустой
+                    error_message = "Для перевода заявки в статус «Принято в работу» необходимо указать комментарий."
+                else:
+                    app.status = 'w'
+                    app.comment = comment_text
+                    app.save()
+                    return redirect('admin-panel')
+            elif new_status == 'd':  # если статус «Выполнено»
+                if 'design_photo' not in request.FILES:  # проверяем, что прикрепили фото дизайна
+                    error_message = "Для перевода заявки в статус «Выполнено» необходимо прикрепить изображение дизайна."
+                else:
+                    app.status = 'd'
+                    app.design_photo = request.FILES['design_photo']
+                    app.save()
+                    return redirect('admin-panel')
 
         elif action_type == 'create_category':
             cat_name = request.POST.get('cat_name', '').strip()
             if cat_name and not Category.objects.filter(name=cat_name).exists():   # если название не пустое и такой категории еще нет
                 Category.objects.create(name=cat_name)
+            return redirect('admin-panel')
 
         elif action_type == 'delete_category':
             cat_id = request.POST.get('cat_id')
             cat = get_object_or_404(Category, pk=cat_id)    # находим категорию в базе
             cat.delete()     # удаляем её (вместе со всеми связанными заявками)
-
-        return redirect('admin-panel')
+            return redirect('admin-panel')
 
     return render(request, 'catalog/admin_panel.html', {
         'all_apps': all_apps,
         'all_categories': all_categories,
-        'status_filter': status_filter
+        'status_filter': status_filter,
+        'error_message': error_message
     })
 

@@ -15,18 +15,24 @@
     </div>
 </div>
 
+{% if error_message %}
+    <div style="background-color: #f8d7da; color: #842029; padding: 12px 16px; border-radius: 6px; border: 1px solid #f5c2c7; margin-bottom: 20px; font-weight: 600;">
+        {{ error_message }}
+    </div>
+{% endif %}
+
 <h3 style="font-weight: 700; margin-bottom: 15px; color: #212529; font-size: 20px;">Список всех заявок</h3>
 {% if all_apps %}
     <table class="custom-table mb-5">
         <thead>
             <tr>
                 <th style="width: 10%;">Автор</th>
-                <th style="width: 11%;">План / Фото</th>
+                <th style="width: 10%;">План / Фото</th>
                 <th style="width: 15%;">Название</th>
                 <th style="width: 22%;">Описание</th>
-                <th style="width: 12%;">Категория</th>
+                <th style="width: 11%;">Категория</th>
                 <th style="width: 11%;">Статус</th>
-                <th style="width: 19%;">Управление статусом</th>
+                <th style="width: 21%;">Управление статусом</th>
             </tr>
         </thead>
         <tbody>
@@ -55,24 +61,47 @@
                         {% endif %}
                     </td>
                     <td>
-                        <form method="post" enctype="multipart/form-data" style="margin: 0;">
-                            {% csrf_token %}
-                            <input type="hidden" name="action_type" value="change_status">
-                            <input type="hidden" name="app_id" value="{{ app.pk }}">
+                        {% if app.status == 'n' %}
+                            <form method="post" enctype="multipart/form-data" style="margin: 0;">
+                                {% csrf_token %}
+                                <input type="hidden" name="action_type" value="change_status">
+                                <input type="hidden" name="app_id" value="{{ app.pk }}">
 
-                            <div style="display: flex; gap: 8px; align-items: center;">
-                                <select name="new_status" onchange="this.closest('form').querySelector('.design-upload').style.display = this.value === 'd' ? 'block' : 'none'" style="padding: 6px 10px; border: 1px solid #ced4da; border-radius: 4px; font-size: 13px; background-color: #fff;">
-                                    <option value="n" {% if app.status == 'n' %}selected{% endif %}>Новая</option>
-                                    <option value="w" {% if app.status == 'w' %}selected{% endif %}>В работе</option>
-                                    <option value="d" {% if app.status == 'd' %}selected{% endif %}>Выполнено</option>
-                                </select>
-                                <button type="submit" class="btn-primary" style="padding: 6px 12px; font-size: 13px; border-radius: 4px; background-color: #212529;">ОК</button>
-                            </div>
+                                <div style="display: flex; gap: 6px; align-items: center;">
+                                    <select name="new_status" required onchange="
+                                        var form = this.closest('form');
+                                        var commentBox = form.querySelector('.comment-box');
+                                        var commentInput = commentBox.querySelector('input');
+                                        var designBox = form.querySelector('.design-upload');
+                                        var designInput = designBox.querySelector('input');
 
-                            <div class="design-upload" style="display: {% if app.status == 'd' %}block{% else %}none{% endif %}; margin-top: 8px;">
-                                <input type="file" name="design_photo" accept=".jpg,.jpeg,.png,.bmp" style="font-size: 11px; max-width: 180px;">
-                            </div>
-                        </form>
+                                        commentBox.style.display = this.value === 'w' ? 'block' : 'none';
+                                        commentInput.required = (this.value === 'w');
+
+                                        designBox.style.display = this.value === 'd' ? 'block' : 'none';
+                                        designInput.required = (this.value === 'd');
+                                    " style="padding: 6px 8px; border: 1px solid #ced4da; border-radius: 4px; font-size: 13px; background-color: #fff; max-width: 150px;">
+                                        <option value="" disabled selected>Выберите статус...</option>
+                                        <option value="w">Принято в работу</option>
+                                        <option value="d">Выполнено</option>
+                                    </select>
+                                    <button type="submit" class="btn-primary" style="padding: 6px 12px; font-size: 13px; border-radius: 4px; background-color: #212529;">ОК</button>
+                                </div>
+
+                                <div class="comment-box" style="display: none; margin-top: 8px;">
+                                    <input type="text" name="comment" placeholder="Комментарий (обязательно)" style="width: 100%; padding: 6px 8px; border: 1px solid #ced4da; border-radius: 4px; font-size: 12px; box-sizing: border-box;">
+                                </div>
+
+                                <div class="design-upload" style="display: none; margin-top: 8px;">
+                                    <input type="file" name="design_photo" accept=".jpg,.jpeg,.png,.bmp" style="font-size: 11px; max-width: 190px;">
+                                </div>
+                            </form>
+                        {% else %}
+                            <span style="color: #6c757d; font-size: 12px; font-weight: 600;">Смена статуса недоступна</span>
+                            {% if app.comment %}
+                                <div style="font-size: 12px; color: #495057; margin-top: 4px;">Комментарий: {{ app.comment }}</div>
+                            {% endif %}
+                        {% endif %}
                     </td>
                 </tr>
             {% endfor %}
@@ -128,4 +157,3 @@
     </div>
 </div>
 {% endblock %}
-
